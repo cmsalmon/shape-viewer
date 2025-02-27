@@ -1,0 +1,26 @@
+https://stackoverflow.com/questions/572768/styling-an-input-type-file-button
+https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+https://stackoverflow.com/questions/19014250/rerender-view-on-browser-resize-with-react
+https://www.reddit.com/r/learnjavascript/comments/sjir7s/how_do_i_check_if_the_array_of_objects_has/
+
+
+The user should be able to open a shape file by clicking the button on the top toolbar or left menu.
+   - Does this mean the button would lose its ability to select a file in favor of opening the selected shape file?
+
+
+***Notes
+Error handling for uploaded files
+	-handle duplicate z-index (shape that came later goes on top)
+	-remove any comments
+	-handle invalid shapes
+	-handle invalid width/length/xy points
+	-invalid file type
+	-maybe a warning for empty file
+	-error messages
+
+for the error messages for the shape, there is a more elegant way. store error type or something. figure it out
+
+Find the thing that lets you reuse the same string with diff arguments that I used in IBM so I can handle error messages
+
+***Testing
+-test number boundaries
