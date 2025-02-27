@@ -6,8 +6,7 @@ import './OpenFileButton.scss'
  * @param {Function} onFileUpload - Fuction that should be run on file upload
  */
 function OpenFileButton({bText, onFileUpload}) {
-    
-    
+
     const handleUpload = (e) => {
         const file = e.target.files[0];
         const fileName = file?.name;

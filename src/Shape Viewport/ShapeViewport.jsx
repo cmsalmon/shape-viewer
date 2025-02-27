@@ -8,8 +8,7 @@ import { Polygon } from '../Shapes/Polygon';
  * Draws shapes from data in passed in file onto the canvas 
  * @param {object} file - File that will be used to draw shapes
  */
-function ShapeViewport({file}) {
-    // const _ = require("lodash");
+function ShapeViewport({file, setMessages, setDisplay}) {
     const fileContent = file?.content;
     const [shapes, setShapes] = useState([]);
     
@@ -152,7 +151,13 @@ function ShapeViewport({file}) {
     const parseFile = () => {
         const fileArray = fileContent?.split(/\r?\n/);
         let shapeArray = [];
-        let errorArray = [];
+        let errorMessage = "";
+
+        if (!fileArray || fileArray.length === 0) {
+            errorMessage = "There are no contents in this file. Please select another."
+            setMessages(errorMessage);
+            return;
+        }
         
         fileArray.forEach(line => {
             const dataPoints = line.split(",").map((data) => data.trim());
@@ -162,9 +167,10 @@ function ShapeViewport({file}) {
                 // Validates rectangle data
                 case "rectangle":
                     if (dataPoints.length !== 7) {
-                        errorArray.push("The following data has insufficient data points for rectangles: " + line);
+                        errorMessage += "The following data has insufficient data points for rectangles: \n" + line + "\n";
                         break;
                     }
+
                     for (let index = 1; index <= 5; index++) {
                         if (!checkIfValidNumber(dataPoints[index])) {
                             error = true;
@@ -176,7 +182,7 @@ function ShapeViewport({file}) {
                     }
                 
                     if (error) {
-                        errorArray.push("The following line does not have the correct data format for rectangle and cannot be rendered: \n" + line);
+                        errorMessage += "The following line does not have the correct data format for rectangle and cannot be rendered: \n" + line + "\n";
                     } else {
                         shapeArray.push(new Rectangle(dataPoints[1], dataPoints[2], dataPoints[3], dataPoints[4], dataPoints[5], dataPoints[6]));
                     }
@@ -186,19 +192,18 @@ function ShapeViewport({file}) {
                 case "triangle":
 
                     if (dataPoints.length !== 11) {
-                        errorArray.push("The following data has insufficient data points for triangles: " + line);
+                        errorMessage += "The following data has insufficient data points for triangles: " + line + "\n";
                         break;
                     }
 
                     const trianglePoints = createVertexArray(dataPoints);
-                    console.log("triangle points");
-                    console.log(trianglePoints);
+
                     if (!checkIfValidHexColor(dataPoints[10])) {
                         error = true;
                     }
                 
                     if (error || trianglePoints.length === 0) {
-                        errorArray.push("The following line does not have the correct data format for triangle and cannot be rendered: \n" + line);
+                        errorMessage += "The following line does not have the correct data format for triangle and cannot be rendered: \n" + line + "\n";
                     } else {
                         shapeArray.push(new Triangle(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], ...trianglePoints, dataPoints[10]));
                     }          
@@ -207,7 +212,7 @@ function ShapeViewport({file}) {
                 // Validates polydon data    
                 case "polygon":
                     if (dataPoints.length % 2 !== 1) {
-                        errorArray.push("The following data has insufficient data points for triangles: " + line);
+                        errorMessage += "The following data has insufficient data points for triangles: " + line + "\n";
                         break;
                     }
 
@@ -217,18 +222,25 @@ function ShapeViewport({file}) {
                         error = true;
                     }
                     if (error || polygonPoints.length === 0) {
-                        errorArray.push("The following line does not have the correct data format for polygon and cannot be rendered: \n" + line);
+                        errorMessage += "The following line does not have the correct data format for polygon and cannot be rendered: \n" + line + "\n";
                     } else {
                         shapeArray.push(new Polygon(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], polygonPoints, dataPoints[dataPoints.length - 1]));
                     }  
                     break;
                 default:
                     if (line) {
-                        errorArray.push("Not supported shape data:" + line);
+                        errorMessage += "Not supported shape data: " + line + "<br/>";
                     }
                     break;
             }
+
+            
         });
+
+        if (errorMessage !== "") {
+            setMessages(errorMessage);
+            setDisplay(true);
+        }
 
         // sort shape array by z-index
         shapeArray.sort((a, b) => { return a.z - b.z });
