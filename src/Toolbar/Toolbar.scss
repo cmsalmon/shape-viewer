@@ -1,0 +1,16 @@
+#toolbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #192e4a;
+    height: 50px;
+    padding-left: 10px;
+    filter: drop-shadow(0 0 3px #646cffaa)
+}
+
+#siteName {
+    line-height: 50px;
+    height: 50px;
+    color: antiquewhite;
+    font-family:  "Lucida Handwriting", "Papyrus", serif, sans-serif;
+}
+
