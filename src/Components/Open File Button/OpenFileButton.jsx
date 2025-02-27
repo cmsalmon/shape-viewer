@@ -5,7 +5,7 @@ import './OpenFileButton.scss'
  * @param {string} bText - Text that should be displayed on OpenFileButton 
  * @param {Function} onFileUpload - Fuction that should be run on file upload
  */
-function OpenFileButton({bText, onFileUpload}) {
+function OpenFileButton({bText, onFileUpload, setMessages, setDisplay}) {
 
     const handleUpload = (e) => {
         const file = e.target.files[0];
@@ -13,7 +13,8 @@ function OpenFileButton({bText, onFileUpload}) {
         
         //check if file exists
         if (!file) {
-            alert("File undefined. Select new file.");
+            setDisplay(true);
+            setMessages({title: "File error", logs: [{id: 0, line: "", message: "File undefined. Select new file."}]});
             return;
         }
 
@@ -25,7 +26,8 @@ function OpenFileButton({bText, onFileUpload}) {
 
         // when reading the file fails
         fileReader.onerror = () => {
-            alert("Failed");
+            setDisplay(true);
+            setMessages({title: "File error", logs: [{id: 0, line: "", message: "File undefined. Select new file."}]});
         }
 
         fileReader.readAsText(file);

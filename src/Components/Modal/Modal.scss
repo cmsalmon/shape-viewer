@@ -1,0 +1,45 @@
+#modal {
+    position: fixed;
+    top:100px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 500px;
+    max-height: 400px;
+    background: #f3ebe2;
+    border: 1px solid #af3101;
+    border-radius: 3px;
+    overflow-y: auto;
+    overflow-wrap: break-word;
+    filter: drop-shadow(0 0 7px #2f1004);
+    font-family: Verdana, sans-serif;
+}
+
+#messageTitle {
+    display: flex;
+    justify-content: space-between;
+    background-color: #af3101;
+    color: #edf1f6;
+    padding: 5px 10px 5px 10px;
+}
+
+#closeButton {
+    padding:  0px 5px 0px 5px;
+}
+
+#errorContainer {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.error {
+    padding: 5px 10px 5px 10px;
+    font-size:13px;
+}
+
+.errorMessage {
+    font-weight: bold;
+}
+
+.errorLine {
+    margin-left: 10px;
+}
