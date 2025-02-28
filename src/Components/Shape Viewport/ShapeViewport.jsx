@@ -96,16 +96,39 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         let right;
         let top;
         let bottom;
+        console.log()
         if (checkShape.shape === "Rectangle") {
-            left = checkShape.x;
-            right = checkShape.x + checkShape.width;
-            top = checkShape.y;
-            bottom = checkShape.y + checkShape.height;
+            if (checkShape.width > 0) {
+                left = checkShape.x;
+                right = checkShape.x + checkShape.width;
+            } else {
+                left = checkShape.x + checkShape.width;
+                right = checkShape.x;
+            }
+            if (checkShape.height > 0) {
+                top = checkShape.y;
+                bottom = checkShape.y + checkShape.height;
+            } else {
+                top = checkShape.y + checkShape.height;checkShape.y;
+                bottom = checkShape.y;
+            }
         } else {
-            left = checkShape.hitbox.x;
-            right = checkShape.hitbox.x + checkShape.hitbox.width;
-            top = checkShape.hitbox.y;
-            bottom = checkShape.hitbox.y + checkShape.hitbox.height;
+            if (checkShape.hitbox.width > 0) {
+                left = checkShape.hitbox.x;
+                right = checkShape.hitbox.x + checkShape.hitbox.width;
+            } else {
+                left = checkShape.hitbox.x + checkShape.hitbox.width;
+                right = checkShape.hitbox.x;
+            }
+            if (checkShape.hitbox.height > 0) {
+                top = checkShape.hitbox.y;
+                bottom = checkShape.hitbox.y + checkShape.hitbox.height;
+            } else {
+                top = checkShape.hitbox.y + checkShape.hitbox.height;
+                bottom = checkShape.hitbox.y;
+            }
+            
+            
         }
 
         if (x > left && x < right && y > top && y < bottom) {

@@ -16,11 +16,19 @@ function OpenFileButton({bText, onFileUpload, setMessages, setDisplay}) {
     const handleUpload = (e) => {
         const file = e.target.files[0];
         const fileName = file?.name;
+        const extension = fileName ? fileName.split(".")[1] : "";
+        console.log(extension);
         
         //check if file exists
         if (!file) {
             setDisplay(true);
             setMessages({title: "File error", logs: [{id: 0, line: "", message: "File undefined. Select new file."}]});
+            return;
+        }
+
+        if (extension !== "shapefile") {
+            setDisplay(true);
+            setMessages({title: "File error", logs: [{id: 0, line: "", message: "Incorrect file type. Please upload .shapefile files"}]});
             return;
         }
 
