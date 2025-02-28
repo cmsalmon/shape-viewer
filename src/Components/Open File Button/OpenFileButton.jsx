@@ -4,9 +4,15 @@ import './OpenFileButton.scss'
  * Button for uploading files into Shape Siewer
  * @param {string} bText - Text that should be displayed on OpenFileButton 
  * @param {Function} onFileUpload - Fuction that should be run on file upload
+ * @param {Function} setMessages - Sets message object to be displayedd in modal
+ * @param {Function} setDisplay - Set display state of modal
  */
 function OpenFileButton({bText, onFileUpload, setMessages, setDisplay}) {
 
+    /**
+     * Checks if valid file and if so reads in file content
+     * @param {object} e - Event
+     */
     const handleUpload = (e) => {
         const file = e.target.files[0];
         const fileName = file?.name;

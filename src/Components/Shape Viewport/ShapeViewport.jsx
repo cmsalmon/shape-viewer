@@ -7,6 +7,8 @@ import { Polygon } from '../Shapes/Polygon';
 /**
  * Draws shapes from data in passed in file onto the canvas 
  * @param {object} file - File that will be used to draw shapes
+ * @param {Function} setMessages - Sets list an object that contains messages to be displayed in modal
+ * @param {Function} setDisplay - Sets the display state of the modal
  */
 function ShapeViewport({file, setMessages, setDisplay}) {
     const fileContent = file?.content;
@@ -34,7 +36,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         return () => window.removeEventListener('resize', adjustCanvasSize);
     }, [shapes]);
     
-    // Adjusts the canvas size to the size of viewport
+    // Adjusts the canvas size to the size of viewport and draws uploaded shapes
     const adjustCanvasSize = () => {
         const canvas =  document.getElementById("canvas");
         const viewport =  document.getElementById("viewport").getBoundingClientRect();
@@ -51,7 +53,9 @@ function ShapeViewport({file, setMessages, setDisplay}) {
 
     /**
      * Draws validated shapes from file onto canvas
-     * @param {CanvasRenderingContext2D} context - The context of the canvas 
+     * @param {CanvasRenderingContext2D} context - The context of the canvas
+     * @param {Number} canvasWidth - The width of canvas
+     * @param {Number} canvasHeight - The height of canvas
      */
     const draw = (context, canvasWidth, canvasHeight) => {
         context.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -61,15 +65,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
                     context.fillStyle = "#" + shape.color;
                     context.fillRect(shape.x, shape.y, shape.width, shape.height);
                     break;
-                case "Triangle":
-                    context.fillStyle = "#" + shape.color;
-                    context.beginPath();
-                    context.moveTo(shape.x + shape.point1.x, shape.y + shape.point1.y);
-                    context.lineTo(shape.x + shape.point2.x, shape.y + shape.point2.y);
-                    context.lineTo(shape.x + shape.point3.x, shape.y + shape.point3.y);
-                    context.fill();
-                    break;
-                case "Polygon":
+                default:
                     const firstPoint = false;
                     context.fillStyle = "#" + shape.color;
                     context.beginPath();
@@ -81,8 +77,6 @@ function ShapeViewport({file, setMessages, setDisplay}) {
                         }
                     });
                     context.fill();
-                    break;
-                default:
                     break;     
             }
         });
@@ -100,7 +94,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
     }
 
     /**
-     * Checks if passed in argument is a valid number greater than or equal to 0
+     * Checks if passed in argument is a valid number
      * @param {string} check - The string to be checked 
      * @return {boolean} - The validity of 'check'
      */
@@ -111,8 +105,8 @@ function ShapeViewport({file, setMessages, setDisplay}) {
     /**
      * Checks if passed in argument is a valid vertices and returns a array
      * @param {Array} dataPoints - The string to be checked 
-     * @return {Array} - Returns an empty array if there was an invalid point 
-     *                   and returns an array with valid points if there wasn't 
+     * @return {object} - If the data points are invalid, then it will return an empty object.
+     *                      Else, it will return an object with a hitbox for the shape and the shape's vertices
      */
     const createVertexArray = (dataPoints) => {
         let error = false;
@@ -159,6 +153,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
             }, []);
         }
 
+        // Adjusts for x, y offset
         if (!error) {
             xMin += parseInt(dataPoints[1]);
             xMax += parseInt(dataPoints[1]);
@@ -230,7 +225,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
                             errorMessage.push({id: errorId, line: line, message: "The following line does not have the correct data format for triangle and cannot be rendered: "});
                             errorId++;
                         } else {
-                            shapeArray.push(new Triangle(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], ...trianglePoints?.vertices, dataPoints[10], trianglePoints.hitBox));
+                            shapeArray.push(new Triangle(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], trianglePoints?.vertices, dataPoints[10], trianglePoints.hitBox));
                         }          
                         break;
                     
@@ -272,13 +267,20 @@ function ShapeViewport({file, setMessages, setDisplay}) {
 
             // sort shape array by z-index
             shapeArray.sort((a, b) => { return a.z - b.z });
-
             setShapes(shapeArray);
         } catch (error) {
             console.error(error);
         }
     }
  
+    /**
+     * Checks if mouse click was within the shape or its hitbox
+     * @param {Number} x - The x coordinate of mouse click
+     * @param {Number} y - The y coordinate of mouse click
+     * @param {object} checkShape - The shape to check if it was clicked 
+     * @return {boolean} - If the mouse click was within the shape, 
+     *                      then it returns true. Else, if returns false.
+     */
     const checkIfClickedInsideShape = (x, y, checkShape) => {
         let left;
         let right;
@@ -302,10 +304,17 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         return false;
     }
 
+    /**
+     * Determines if a shape is clicked on and if so, stores the shape index.
+     * Also sets dragging state to true.
+     * @param {object} e - Event
+     */
     const mouseDown =(e)=> {
         e.preventDefault();
+        // x, y offset
         yOffset = document.getElementById("canvas").getBoundingClientRect()["top"];
         xOffset = document.getElementById("leftMenu").getBoundingClientRect()["width"]; 
+        
         if (checkLeftMouseClick(e)) {
             startX = parseInt(e.clientX) - parseInt(xOffset);
             startY = parseInt(e.clientY) - parseInt(yOffset);
@@ -321,6 +330,10 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         }
     }
 
+    /**
+     * Sets dragging state to false.
+     * @param {object} e - Event
+     */
     const mouseUp = (e) => {
         if (!isDragging) {
             return;
@@ -329,6 +342,10 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         isDragging = false;
     }
 
+    /**
+     * Sets dragging state to false.
+     * @param {object} e - Event
+     */
     const mouseOut = (e) => {
         if (!isDragging) {
             return;
@@ -337,6 +354,10 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         isDragging = false;
     }
 
+    /**
+     * Translates clicked shape on canvas
+     * @param {object} e - Event
+     */
     const mouseMove = (e) => {
         if (!isDragging) {
             return;
@@ -344,6 +365,8 @@ function ShapeViewport({file, setMessages, setDisplay}) {
             e.preventDefault();
             let mouseX = parseInt(e.clientX) - parseInt(xOffset);;
             let mouseY = parseInt(e.clientY) - parseInt(yOffset);;
+            
+            //distance traveled
             let dx = mouseX - parseInt(startX);
             let dy = mouseY - parseInt(startY);
 
@@ -351,6 +374,8 @@ function ShapeViewport({file, setMessages, setDisplay}) {
 
             currentShape.x += dx;
             currentShape.y += dy;
+
+            // moves hitbox with shape
             if (currentShape.shape !== "Rectangle") {
                 currentShape.hitbox.x += dx;
                 currentShape.hitbox.y += dy;
@@ -363,7 +388,11 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         }
     }
 
-    // https://stackoverflow.com/questions/3944122/detect-left-mouse-button-press
+    /**
+     * Checks if left mouse was clicked.
+     * https://stackoverflow.com/a/12737882
+     * @param {object} e - Event
+     */
     const checkLeftMouseClick = (e) => {
         if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) {
             return false;
