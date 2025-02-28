@@ -7,12 +7,13 @@
  * @param {string} color - The color of the polygon
  */
 export class Polygon {
-    constructor(xIndex, yIndex, zIndex, points, color) {
+    constructor(xIndex, yIndex, zIndex, points, color, hitbox) {
         this.shape = "Polygon";
         this.x = xIndex;
         this.y = yIndex;
         this.z = zIndex;
         this.points = points;
         this.color = color;
+        this.hitbox = hitbox;
     }
 }

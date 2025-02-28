@@ -11,12 +11,17 @@ import { Polygon } from '../Shapes/Polygon';
 function ShapeViewport({file, setMessages, setDisplay}) {
     const fileContent = file?.content;
     const [shapes, setShapes] = useState([]);
+    let current_shape_Index = null;
+    let isDragging = false;
+    let startX;
+    let startY;
+    let yOffset;
+    let xOffset;
     
     useEffect(() => {
         if (fileContent) {
             parseFile();
         } else {
-            ("called from parse")
             setDisplay(true);
             setMessages({title: "Empty file", logs: [{id: 0, line: "", message: "There are no contents in this file. Please select another."}]});
             setShapes([]);
@@ -39,8 +44,8 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         canvas.width = Math.round(shape_viewport_width_in_pixels);
 
         if (canvas.getContext) {
-            const ctx = canvas.getContext('2d');
-            draw(ctx);
+            const context = canvas.getContext('2d');
+            draw(context, shape_viewport_width_in_pixels, shape_viewport_height_in_pixels);
         }
     }
 
@@ -48,7 +53,8 @@ function ShapeViewport({file, setMessages, setDisplay}) {
      * Draws validated shapes from file onto canvas
      * @param {CanvasRenderingContext2D} context - The context of the canvas 
      */
-    const draw = (context) => {
+    const draw = (context, canvasWidth, canvasHeight) => {
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
         shapes.forEach((shape) => {
             switch(shape.shape) {
                 case "Rectangle":
@@ -99,7 +105,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
      * @return {boolean} - The validity of 'check'
      */
     const checkIfValidNumber = (check) => {
-        return !isNaN(parseInt(check, 10)) && parseInt(check, 10) >= 0;
+        return !isNaN(parseInt(check, 10));
     }
 
     /**
@@ -112,6 +118,10 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         let error = false;
         let vertex = [];
         let distinctVertex = [];
+        let xMin;
+        let xMax;
+        let yMin;
+        let yMax;
 
         //checks if data is valid numbers and creates an object with x, y coordinates if so
         let index = 1;
@@ -121,6 +131,10 @@ function ShapeViewport({file, setMessages, setDisplay}) {
             } else if (index >= 4 && checkIfValidNumber(dataPoints[index]) && checkIfValidNumber(dataPoints[index + 1])) {
                 const xVal = parseInt(dataPoints[index]);
                 const yVal = parseInt(dataPoints[index + 1]);
+                xMin = xMin ? (xMin < xVal ? xMin : xVal) : xVal;
+                xMax = xMax ? (xMax > xVal ? xMax : xVal) : xVal;
+                yMin = yMin ? (yMin < yVal ? yMin : yVal) : yVal;
+                yMax = yMax ? (yMax > yVal ? yMax : yVal) : yVal;
                 vertex.push({x: xVal, y: yVal});
                 index += 2;
             } else {
@@ -145,7 +159,14 @@ function ShapeViewport({file, setMessages, setDisplay}) {
             }, []);
         }
 
-        return error ? [] : distinctVertex;
+        if (!error) {
+            xMin += parseInt(dataPoints[1]);
+            xMax += parseInt(dataPoints[1]);
+            yMin += parseInt(dataPoints[2]);
+            yMax += parseInt(dataPoints[2]);
+        }
+
+        return error ? {} : {hitBox: new Rectangle(xMin, yMin, 0, xMax - xMin, yMax - yMin, "") , vertices: distinctVertex};
     }
 
     /** 
@@ -187,7 +208,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
                             errorMessage.push({id: errorId, line: line, message: "The following line does not have the correct data format for rectangle and cannot be rendered:"});
                             errorId++;
                         } else {
-                            shapeArray.push(new Rectangle(dataPoints[1], dataPoints[2], dataPoints[3], dataPoints[4], dataPoints[5], dataPoints[6]));
+                            shapeArray.push(new Rectangle(parseInt(dataPoints[1]), parseInt(dataPoints[2]), parseInt(dataPoints[3]), parseInt(dataPoints[4]), parseInt(dataPoints[5]), dataPoints[6]));
                         }
 
                         break;
@@ -205,11 +226,11 @@ function ShapeViewport({file, setMessages, setDisplay}) {
                             error = true;
                         }
                     
-                        if (error || trianglePoints.length === 0) {
+                        if (error || trianglePoints?.vertices?.length === 0) {
                             errorMessage.push({id: errorId, line: line, message: "The following line does not have the correct data format for triangle and cannot be rendered: "});
                             errorId++;
                         } else {
-                            shapeArray.push(new Triangle(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], ...trianglePoints, dataPoints[10]));
+                            shapeArray.push(new Triangle(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], ...trianglePoints?.vertices, dataPoints[10], trianglePoints.hitBox));
                         }          
                         break;
                     
@@ -226,11 +247,11 @@ function ShapeViewport({file, setMessages, setDisplay}) {
                         if (!checkIfValidHexColor(dataPoints[dataPoints.length - 1])) {
                             error = true;
                         }
-                        if (error || polygonPoints.length === 0) {
+                        if (error || polygonPoints?.vertices?.length === 0) {
                             errorMessage.push({id: errorId, line: line, message: "The following line does not have the correct data format for polygon and cannot be rendered: "});
                             errorId++;
                         } else {
-                            shapeArray.push(new Polygon(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], polygonPoints, dataPoints[dataPoints.length - 1]));
+                            shapeArray.push(new Polygon(parseInt(dataPoints[1]), parseInt(dataPoints[2]), dataPoints[3], polygonPoints?.vertices, dataPoints[dataPoints.length - 1], polygonPoints?.hitBox));
                         }  
                         break;
                     default:
@@ -257,10 +278,107 @@ function ShapeViewport({file, setMessages, setDisplay}) {
             console.error(error);
         }
     }
+ 
+    const checkIfClickedInsideShape = (x, y, checkShape) => {
+        let left;
+        let right;
+        let top;
+        let bottom;
+        if (checkShape.shape === "Rectangle") {
+            left = checkShape.x;
+            right = checkShape.x + checkShape.width;
+            top = checkShape.y;
+            bottom = checkShape.y + checkShape.height;
+        } else {
+            left = checkShape.hitbox.x;
+            right = checkShape.hitbox.x + checkShape.hitbox.width;
+            top = checkShape.hitbox.y;
+            bottom = checkShape.hitbox.y + checkShape.hitbox.height;
+        }
+
+        if (x > left && x < right && y > top && y < bottom) {
+            return true;
+        }
+        return false;
+    }
+
+    const mouseDown =(e)=> {
+        e.preventDefault();
+        yOffset = document.getElementById("canvas").getBoundingClientRect()["top"];
+        xOffset = document.getElementById("leftMenu").getBoundingClientRect()["width"]; 
+        if (checkLeftMouseClick(e)) {
+            startX = parseInt(e.clientX) - parseInt(xOffset);
+            startY = parseInt(e.clientY) - parseInt(yOffset);
+            let index = 0;
+            for (let shape of shapes) {
+                if (checkIfClickedInsideShape(startX, startY, shape)) {
+                    current_shape_Index = index;
+                    isDragging = true;
+                    return;
+                }
+                index++;
+            }
+        }
+    }
+
+    const mouseUp = (e) => {
+        if (!isDragging) {
+            return;
+        }
+        e.preventDefault();
+        isDragging = false;
+    }
+
+    const mouseOut = (e) => {
+        if (!isDragging) {
+            return;
+        }
+        e.preventDefault();
+        isDragging = false;
+    }
+
+    const mouseMove = (e) => {
+        if (!isDragging) {
+            return;
+        } else {
+            e.preventDefault();
+            let mouseX = parseInt(e.clientX) - parseInt(xOffset);;
+            let mouseY = parseInt(e.clientY) - parseInt(yOffset);;
+            let dx = mouseX - parseInt(startX);
+            let dy = mouseY - parseInt(startY);
+
+            let currentShape = shapes[current_shape_Index]
+
+            currentShape.x += dx;
+            currentShape.y += dy;
+            if (currentShape.shape !== "Rectangle") {
+                currentShape.hitbox.x += dx;
+                currentShape.hitbox.y += dy;
+            }
+
+            adjustCanvasSize();
+
+            startX = mouseX;
+            startY = mouseY;
+        }
+    }
+
+    // https://stackoverflow.com/questions/3944122/detect-left-mouse-button-press
+    const checkLeftMouseClick = (e) => {
+        if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) {
+            return false;
+        } else if ('buttons' in e) {
+            return e.buttons === 1;
+        } else if ('which' in e) {
+            return e.which === 1;
+        } else {
+            return (e.button == 1 || e.type == 'click');
+        }
+    }
 
     return (
         <div id='viewport'>
-            <canvas id="canvas"></canvas>    
+            <canvas id="canvas" onMouseDown={(e) => mouseDown(e)} onMouseOut={(e) => mouseOut(e)} onMouseUp={(e) => mouseUp(e)} onMouseMove={(e) => mouseMove(e)}></canvas>    
         </div>
     );
 }

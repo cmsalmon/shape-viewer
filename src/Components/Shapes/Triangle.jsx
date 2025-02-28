@@ -9,7 +9,7 @@
  * @param {string} color - The color of the triangle
  */
 export class Triangle {
-    constructor(xIndex, yIndex, zIndex, point1, point2, point3, color) {
+    constructor(xIndex, yIndex, zIndex, point1, point2, point3, color, hitbox) {
         this.shape = "Triangle";
         this.x = xIndex;
         this.y = yIndex;
@@ -18,5 +18,6 @@ export class Triangle {
         this.point2 = point2;
         this.point3 = point3;
         this.color = color;
+        this.hitbox = hitbox;
     }
 }
