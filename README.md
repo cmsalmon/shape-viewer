@@ -16,7 +16,7 @@ Shapes that contain incorrect format or invalid data points will be skipped over
 
 ## Running Shape Viewer
 Shape Viewer requires: 
- - Node: 22.14.0
+ - Node: ^18.18.0 || ^20.9.0 || >=21.1.0;  Most latest version recommended: (22.14.0)
 
 Open Shape-Viewer folder in an IDE.
 
@@ -68,7 +68,7 @@ Polygon, 600, 70, 4, 50, 50, 100, 100, 100, 150, 200, 250, 70, 300, 55, 150, 417
      - 4 is the z - index
      - (50, 50), (100, 100), (100, 150), (200, 250), (70, 300), (55, 150) are the polygon's vertices
      - "4172db" is the shape's color code
-     
+
 ## Iterations
  - Iteration 1: User Interface Layout
  - Iteration 2: Shape File
