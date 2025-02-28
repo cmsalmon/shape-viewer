@@ -1,0 +1,4 @@
+Element: getBoundingClientRect() method - Web APIs | MDN. (2024, July 29). MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+FileReader - Web APIs | MDN. (2025, January 28). MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+CreatePortal – React. (n.d.). https://react.dev/reference/react-dom/createPortal#rendering-a-modal-dialog-with-a-portal
+robocat, Detect left mouse button press. (n.d.). Stack Overflow. https://stackoverflow.com/a/12737882

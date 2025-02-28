@@ -13,7 +13,7 @@ import { Polygon } from '../Shapes/Polygon';
 function ShapeViewport({file, setMessages, setDisplay}) {
     const fileContent = file?.content;
     const [shapes, setShapes] = useState([]);
-    let current_shape_Index = null;
+    let currentShape = null;
     let isDragging = false;
     let startX;
     let startY;
@@ -82,6 +82,129 @@ function ShapeViewport({file, setMessages, setDisplay}) {
         });
 
     }
+
+    /**
+     * Checks if mouse click was within the shape or its hitbox
+     * @param {Number} x - The x coordinate of mouse click
+     * @param {Number} y - The y coordinate of mouse click
+     * @param {object} checkShape - The shape to check if it was clicked 
+     * @return {boolean} - If the mouse click was within the shape, 
+     *                      then it returns true. Else, if returns false.
+     */
+    const checkIfClickedInsideShape = (x, y, checkShape) => {
+        let left;
+        let right;
+        let top;
+        let bottom;
+        if (checkShape.shape === "Rectangle") {
+            left = checkShape.x;
+            right = checkShape.x + checkShape.width;
+            top = checkShape.y;
+            bottom = checkShape.y + checkShape.height;
+        } else {
+            left = checkShape.hitbox.x;
+            right = checkShape.hitbox.x + checkShape.hitbox.width;
+            top = checkShape.hitbox.y;
+            bottom = checkShape.hitbox.y + checkShape.hitbox.height;
+        }
+
+        if (x > left && x < right && y > top && y < bottom) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determines if a shape is clicked on and if so, stores the shape index.
+     * Also sets dragging state to true.
+     * @param {object} e - Event
+     */
+    const mouseDown =(e)=> {
+        e.preventDefault();
+        // x, y offset
+        yOffset = document.getElementById("canvas").getBoundingClientRect()["top"];
+        xOffset = document.getElementById("leftMenu").getBoundingClientRect()["width"]; 
+        
+        if (checkLeftMouseClick(e)) {
+            startX = parseInt(e.clientX) - parseInt(xOffset);
+            startY = parseInt(e.clientY) - parseInt(yOffset);
+
+            for (let shape of shapes) {
+                if (checkIfClickedInsideShape(startX, startY, shape)) {
+                    currentShape = shape;
+                    isDragging = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets dragging state to false.
+     * @param {object} e - Event
+     */
+    const mouseUp = (e) => {
+        e.preventDefault();
+        isDragging = false;
+    }
+
+    /**
+     * Sets dragging state to false.
+     * @param {object} e - Event
+     */
+    const mouseOut = (e) => {
+        e.preventDefault();
+        isDragging = false;
+    }
+
+    /**
+     * Translates clicked shape on canvas
+     * @param {object} e - Event
+     */
+    const mouseMove = (e) => {
+        if (!isDragging) {
+            return;
+        } else {
+            e.preventDefault();
+            let mouseX = parseInt(e.clientX) - parseInt(xOffset);;
+            let mouseY = parseInt(e.clientY) - parseInt(yOffset);;
+            
+            //distance traveled
+            let dx = mouseX - parseInt(startX);
+            let dy = mouseY - parseInt(startY);
+
+            currentShape.x += dx;
+            currentShape.y += dy;
+
+            // moves hitbox with shape
+            if (currentShape.shape !== "Rectangle") {
+                currentShape.hitbox.x += dx;
+                currentShape.hitbox.y += dy;
+            }
+
+            adjustCanvasSize();
+
+            startX = mouseX;
+            startY = mouseY;
+        }
+    }
+
+    /**
+     * Checks if left mouse was clicked.
+     * https://stackoverflow.com/a/12737882
+     * @param {object} e - Event
+     */
+    const checkLeftMouseClick = (e) => {
+        if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) {
+            return false;
+        } else if ('buttons' in e) {
+            return e.buttons === 1;
+        } else if ('which' in e) {
+            return e.which === 1;
+        } else {
+            return (e.button == 1 || e.type == 'click');
+        }
+    }
     
     /**
      * Checks if passed in argument is a valid hex color
@@ -139,8 +262,7 @@ function ShapeViewport({file, setMessages, setDisplay}) {
 
         // Checks for duplicate points
         if (!error) {
-            // referenced from https://www.reddit.com/r/learnjavascript/comments/sjir7s/how_do_i_check_if_the_array_of_objects_has/
-            const duplicateExists = a => b => Object.keys(a).every(key => a[key] === b[key]);
+            const duplicateExists = (a) => (b) => Object.keys(a).every(key => a[key] === b[key]);
             distinctVertex = vertex.reduce((distinct, coord) => {
                 if (Array.isArray(distinct)) {
                     if (distinct.some(duplicateExists(coord))) {
@@ -270,138 +392,6 @@ function ShapeViewport({file, setMessages, setDisplay}) {
             setShapes(shapeArray);
         } catch (error) {
             console.error(error);
-        }
-    }
- 
-    /**
-     * Checks if mouse click was within the shape or its hitbox
-     * @param {Number} x - The x coordinate of mouse click
-     * @param {Number} y - The y coordinate of mouse click
-     * @param {object} checkShape - The shape to check if it was clicked 
-     * @return {boolean} - If the mouse click was within the shape, 
-     *                      then it returns true. Else, if returns false.
-     */
-    const checkIfClickedInsideShape = (x, y, checkShape) => {
-        let left;
-        let right;
-        let top;
-        let bottom;
-        if (checkShape.shape === "Rectangle") {
-            left = checkShape.x;
-            right = checkShape.x + checkShape.width;
-            top = checkShape.y;
-            bottom = checkShape.y + checkShape.height;
-        } else {
-            left = checkShape.hitbox.x;
-            right = checkShape.hitbox.x + checkShape.hitbox.width;
-            top = checkShape.hitbox.y;
-            bottom = checkShape.hitbox.y + checkShape.hitbox.height;
-        }
-
-        if (x > left && x < right && y > top && y < bottom) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Determines if a shape is clicked on and if so, stores the shape index.
-     * Also sets dragging state to true.
-     * @param {object} e - Event
-     */
-    const mouseDown =(e)=> {
-        e.preventDefault();
-        // x, y offset
-        yOffset = document.getElementById("canvas").getBoundingClientRect()["top"];
-        xOffset = document.getElementById("leftMenu").getBoundingClientRect()["width"]; 
-        
-        if (checkLeftMouseClick(e)) {
-            startX = parseInt(e.clientX) - parseInt(xOffset);
-            startY = parseInt(e.clientY) - parseInt(yOffset);
-            let index = 0;
-            for (let shape of shapes) {
-                if (checkIfClickedInsideShape(startX, startY, shape)) {
-                    current_shape_Index = index;
-                    isDragging = true;
-                    return;
-                }
-                index++;
-            }
-        }
-    }
-
-    /**
-     * Sets dragging state to false.
-     * @param {object} e - Event
-     */
-    const mouseUp = (e) => {
-        if (!isDragging) {
-            return;
-        }
-        e.preventDefault();
-        isDragging = false;
-    }
-
-    /**
-     * Sets dragging state to false.
-     * @param {object} e - Event
-     */
-    const mouseOut = (e) => {
-        if (!isDragging) {
-            return;
-        }
-        e.preventDefault();
-        isDragging = false;
-    }
-
-    /**
-     * Translates clicked shape on canvas
-     * @param {object} e - Event
-     */
-    const mouseMove = (e) => {
-        if (!isDragging) {
-            return;
-        } else {
-            e.preventDefault();
-            let mouseX = parseInt(e.clientX) - parseInt(xOffset);;
-            let mouseY = parseInt(e.clientY) - parseInt(yOffset);;
-            
-            //distance traveled
-            let dx = mouseX - parseInt(startX);
-            let dy = mouseY - parseInt(startY);
-
-            let currentShape = shapes[current_shape_Index]
-
-            currentShape.x += dx;
-            currentShape.y += dy;
-
-            // moves hitbox with shape
-            if (currentShape.shape !== "Rectangle") {
-                currentShape.hitbox.x += dx;
-                currentShape.hitbox.y += dy;
-            }
-
-            adjustCanvasSize();
-
-            startX = mouseX;
-            startY = mouseY;
-        }
-    }
-
-    /**
-     * Checks if left mouse was clicked.
-     * https://stackoverflow.com/a/12737882
-     * @param {object} e - Event
-     */
-    const checkLeftMouseClick = (e) => {
-        if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) {
-            return false;
-        } else if ('buttons' in e) {
-            return e.buttons === 1;
-        } else if ('which' in e) {
-            return e.which === 1;
-        } else {
-            return (e.button == 1 || e.type == 'click');
         }
     }
 
