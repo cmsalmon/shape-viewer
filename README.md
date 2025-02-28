@@ -21,9 +21,12 @@ Shape Viewer requires:
 Open Shape-Viewer folder in an IDE.
 
  Run:
-  - npm install
-  - npm run dev
-
+```
+npm install
+```
+```
+npm run dev
+```
  or accesss the hosted site: [Shape Viewer](https://cmsalmon.github.io/shape-viewer/) 
 
 ## Input Files
@@ -31,6 +34,40 @@ Files to test Shape Viewer can be found in the "shapefiles" folder.
  - [Completely valid files] contains files with only valid shape data
  - [Files with error] contains files that have either incorrect data format or invalid files that triggers a error modal.
 
+ Data Format: 
+  - Rectangles should have the following data format:
+```
+ Rectangle, 0, 0, 1, 50, 50, ff0000
+```
+    where:
+     - "Rectangle" is the shape
+     - (0, 0) is the x, y coordinates
+     - 1 is the z - index
+     - 50 is the width
+     - 50 is the height
+     - "ff0000" is the shape's color code
+
+ - Triangles should have the following data format:
+```
+Triangle, 30, 40, 3, 30, 90, 20, 20, 10, 10, 9a0f9d
+```
+    where:
+     - "Triangle" is the shape
+     - (30, 40) is the x, y coordinates
+     - 3 is the z - index
+     - (30, 90), (20, 20), (10, 10) are the triangle's vertices
+     - "9a0f9d" is the shape's color code
+
+ - Polygons should have the following data format:
+```
+Polygon, 600, 70, 4, 50, 50, 100, 100, 100, 150, 200, 250, 70, 300, 55, 150, 4172db
+```
+    where:
+     - "Polygon" is the shape
+     - (600, 70) is the x, y coordinates
+     - 4 is the z - index
+     - (50, 50), (100, 100), (100, 150), (200, 250), (70, 300), (55, 150) are the polygon's vertices
+     - "4172db" is the shape's color code
 ## Iterations
  - Iteration 1: User Interface Layout
  - Iteration 2: Shape File
