@@ -68,6 +68,7 @@ Polygon, 600, 70, 4, 50, 50, 100, 100, 100, 150, 200, 250, 70, 300, 55, 150, 417
      - 4 is the z - index
      - (50, 50), (100, 100), (100, 150), (200, 250), (70, 300), (55, 150) are the polygon's vertices
      - "4172db" is the shape's color code
+     
 ## Iterations
  - Iteration 1: User Interface Layout
  - Iteration 2: Shape File
@@ -79,7 +80,6 @@ Polygon, 600, 70, 4, 50, 50, 100, 100, 100, 150, 200, 250, 70, 300, 55, 150, 417
 
 ## Bonus and Extras
  - Bonus Feature 1: Shape Translation
-    - Shape translation has been implemented but save option has not.
  - Error Modal: When an invalid file is uploaded, or file has invalid shape data, an error modal will pop up and tell users what went wrong.
 
 ## Known Problems

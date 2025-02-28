@@ -1,7 +1,7 @@
 import './OpenFileButton.scss'
 
 /**
- * Button for uploading files into Shape Siewer
+ * Button for uploading files into Shape Viewer
  * @param {string} bText - Text that should be displayed on OpenFileButton 
  * @param {Function} onFileUpload - Fuction that should be run on file upload
  * @param {Function} setMessages - Sets message object to be displayedd in modal
