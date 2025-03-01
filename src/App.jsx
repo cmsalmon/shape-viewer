@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import './App.scss'
 import { Toolbar } from './Components/Toolbar/Toolbar'
-import { LeftMenu } from './Components/Left Menu/LeftMenu'
-import { ShapeViewport } from './Components/Shape Viewport/ShapeViewport'
+import { LeftMenu } from './Components/LeftMenu/LeftMenu'
+import { ShapeViewport } from './Components/ShapeViewport/ShapeViewport'
 import { Modal } from './Components/Modal/Modal'
 import { Rectangle } from './Components/Shapes/Rectangle';
 import { Triangle } from './Components/Shapes/Triangle';

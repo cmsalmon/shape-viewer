@@ -1,4 +1,4 @@
-import { OpenFileButton } from "../Open File Button/OpenFileButton";
+import { OpenFileButton } from "../OpenFileButton/OpenFileButton";
 import './Toolbar.scss'
 
 /**

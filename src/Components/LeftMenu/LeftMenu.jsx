@@ -1,5 +1,5 @@
-import { OpenFileButton } from '../Open File Button/OpenFileButton';
-import { SaveButton } from '../Save Button/SaveButton';
+import { OpenFileButton } from '../OpenFileButton/OpenFileButton';
+import { SaveButton } from '../SaveButton/SaveButton';
 import './LeftMenu.scss'
 
 /**

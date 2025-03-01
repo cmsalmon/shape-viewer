@@ -31,8 +31,8 @@ npm run dev
 
 ## Input Files
 Files to test Shape Viewer can be found in the "shapefiles" folder.
- - [Completely valid files] contains files with only valid shape data
- - [Files with error] contains files that have either incorrect data format or invalid files that triggers a error modal.
+ - [CompletelyValidFiles] contains files with only valid shape data
+ - [FilesWithError] contains files that have either incorrect data format or invalid files that triggers a error modal.
 
  Data Format: 
   - Rectangles should have the following data format:
@@ -83,5 +83,5 @@ Polygon, 600, 70, 4, 50, 50, 100, 100, 100, 150, 200, 250, 70, 300, 55, 150, 417
  - Error Modal: When an invalid file is uploaded, or file has invalid shape data, an error modal will pop up and tell users what went wrong.
 
 ## Known Problems
- - Checks to ensure polygons do not have vertices that go over its own edges were not implemented, allowing possible renders of invalid polgons.
+ - Checks were not implemented to ensure polygons do not have vertices that go over its own edges, allowing possible rendering of invalid polygons.
  
