@@ -79,7 +79,7 @@ function ShapeViewport({shapes}) {
         let right;
         let top;
         let bottom;
-        console.log()
+        
         if (checkShape.shape === "Rectangle") {
             if (checkShape.width > 0) {
                 left = checkShape.x;

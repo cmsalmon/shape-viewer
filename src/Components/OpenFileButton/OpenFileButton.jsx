@@ -17,7 +17,6 @@ function OpenFileButton({bText, onFileUpload, setMessages, setDisplay}) {
         const file = e.target.files[0];
         const fileName = file?.name;
         const extension = fileName ? fileName.split(".")[1] : "";
-        console.log(extension);
         
         //check if file exists
         if (!file) {
